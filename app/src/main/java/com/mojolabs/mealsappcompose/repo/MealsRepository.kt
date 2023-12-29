@@ -4,5 +4,5 @@ import com.mojolabs.mealsappcompose.remote.Api
 
 class MealsRepository(private val api: Api = Api()) {
 
-    fun getMealCategories() = api.getMealCategories()
+    suspend fun getMealCategories() = api.getMealCategories()
 }
