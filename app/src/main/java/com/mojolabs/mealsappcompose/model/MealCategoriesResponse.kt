@@ -4,10 +4,10 @@ import com.google.gson.annotations.SerializedName
 
 data class MealCategoriesResponse(
     @SerializedName("categories")
-    val mealsCategories: List<MealsCategory>
+    val mealsCategories: List<MealCategory>
 )
 
-data class MealsCategory(
+data class MealCategory(
     @SerializedName("idCategory")
     val id: String,
     @SerializedName("strCategory")
