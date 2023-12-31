@@ -1,5 +1,6 @@
 package com.mojolabs.mealsappcompose.ui.meals
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -73,7 +75,7 @@ fun MealCategories(mealCategory: MealCategory) {
             .padding(16.dp),
         elevation = CardDefaults.elevatedCardElevation()
     ) {
-        Row {
+        Row(modifier = Modifier.animateContentSize()) {
             Image(
                 // painter = painterResource(id = photoResId),
                 painter = rememberAsyncImagePainter(model = mealCategory.imageUrl),
@@ -103,11 +105,15 @@ fun MealCategories(mealCategory: MealCategory) {
             }
 
             Icon(
-                imageVector = Icons.Filled.KeyboardArrowUp,
+                imageVector = if (isExpanded.value) {
+                    Icons.Filled.KeyboardArrowUp
+                } else {
+                    Icons.Filled.KeyboardArrowDown
+                },
                 contentDescription = "Expand row icon",
                 modifier = Modifier
-                    .padding(start = 16.dp, top = 32.dp, end = 16.dp, bottom = 16.dp)
-                    .align(Alignment.Top)
+                    .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
+                    .align(Alignment.Bottom)
                     .clickable { isExpanded.value = isExpanded.value.not() }
             )
         }
