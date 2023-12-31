@@ -11,16 +11,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.mojolabs.mealsappcompose.model.MealCategoriesResponse
 import com.mojolabs.mealsappcompose.ui.theme.MealsAppComposeTheme
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -46,35 +41,29 @@ fun MealsCategoriesScreen(
 ) {
     Column {
         Text(
-            text = "Meal Categories\n--------------",
+            text = "Meal Categories\n--------------------------",
             modifier = modifier
         )
 
         val mealCategoriesViewModel: MealCategoriesViewModel = viewModel()
 
-        val rememberedMealCategories = remember {
-            mutableStateOf(MealCategoriesResponse(listOf()))
-        }
+        mealCategoriesViewModel.getMealCategories()
 
-        rememberCoroutineScope().apply {
-            LaunchedEffect(key1 = "GET_MEAL_CATEGORIES") {
-                launch {
-                    val response = mealCategoriesViewModel.getMealCategories()
-                    if (response.mealsCategories.isEmpty().not()) {
-                        rememberedMealCategories.value = response
-                    } else {
-                        // ERROR
+        // val mealCategories = mealCategoriesViewModel.mealCategoriesState
+        val mealCategories = mealCategoriesViewModel.mealCategoriesEvent.observeAsState().value
+
+        mealCategories?.apply {
+            if (mealCategories.mealsCategories.isEmpty().not()) {
+                LazyColumn {
+                    items(mealCategories.mealsCategories) {
+                        Text(
+                            text = it.name,
+                            modifier = modifier
+                        )
                     }
                 }
-            }
-        }
-
-        LazyColumn {
-            items(rememberedMealCategories.value.mealsCategories) {
-                Text(
-                    text = it.name,
-                    modifier = modifier
-                )
+            } else {
+                // ERROR
             }
         }
     }
