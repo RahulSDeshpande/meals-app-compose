@@ -1,4 +1,4 @@
-package com.mojolabs.mealsappcompose.ui.meals
+package com.mojolabs.mealsappcompose.ui.meals.categories
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -36,11 +36,11 @@ import com.mojolabs.mealsappcompose.model.MealCategory
 import com.mojolabs.mealsappcompose.ui.theme.MealsAppComposeTheme
 
 @Composable
-fun MealCategoriesScreen(modifier: Modifier = Modifier) {
+fun MealCategoriesScreen(navCallback: (mealCategoryId: String) -> Unit) {
     Column {
         Text(
             text = "Meal Categories",
-            modifier = modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         )
 
         val mealCategoriesViewModel: MealCategoriesViewModel = viewModel()
@@ -54,7 +54,10 @@ fun MealCategoriesScreen(modifier: Modifier = Modifier) {
             if (mealCategories.mealsCategories.isEmpty().not()) {
                 LazyColumn {
                     items(mealCategories.mealsCategories) { mealCategory ->
-                        MealCategories(mealCategory)
+                        MealCategories(
+                            mealCategory = mealCategory,
+                            navCallback = navCallback
+                        )
                     }
                 }
             } else {
@@ -65,14 +68,18 @@ fun MealCategoriesScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MealCategories(mealCategory: MealCategory) {
+fun MealCategories(
+    mealCategory: MealCategory,
+    navCallback: (mealCategoryId: String) -> Unit
+) {
     val isExpanded = remember { mutableStateOf(false) }
 
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .clickable { navCallback.invoke(mealCategory.id) },
         elevation = CardDefaults.elevatedCardElevation()
     ) {
         Row(modifier = Modifier.animateContentSize()) {
@@ -124,6 +131,6 @@ fun MealCategories(mealCategory: MealCategory) {
 @Composable
 fun MealsCategoriesScreenPreview() {
     MealsAppComposeTheme {
-        MealCategoriesScreen()
+        MealCategoriesScreen(navCallback = {})
     }
 }

@@ -1,4 +1,4 @@
-package com.mojolabs.mealsappcompose.ui.meals
+package com.mojolabs.mealsappcompose.ui.meals.categories
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MealCategoriesViewModel(
-    private val mealsRepository: MealsRepository = MealsRepository()
+    private val mealsRepository: MealsRepository = MealsRepository.instance()
 ) : ViewModel() {
 
     // val mealCategoriesState = mutableStateOf(MealCategoriesResponse(listOf()))

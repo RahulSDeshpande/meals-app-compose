@@ -3,11 +3,16 @@ package com.mojolabs.mealsappcompose.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
-import com.mojolabs.mealsappcompose.ui.meals.MealCategoriesScreen
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.mojolabs.mealsappcompose.ui.meals.categories.MealCategoriesScreen
+import com.mojolabs.mealsappcompose.ui.meals.details.MealCategoryDetailsScreen
+import com.mojolabs.mealsappcompose.ui.meals.details.MealCategoryDetailsViewModel
 import com.mojolabs.mealsappcompose.ui.theme.MealsAppComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,12 +21,42 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MealsAppComposeTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    MealCategoriesScreen()
+                MealsAppNavigator()
+            }
+        }
+    }
+}
+
+@Composable
+fun MealsAppNavigator() {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = "meal_categories"
+    ) {
+        composable(route = "meal_categories") {
+            MealCategoriesScreen(
+                navCallback = { mealCategoryId ->
+                    navController.navigate(route = "meal_category_details/$mealCategoryId")
                 }
+            )
+        }
+        composable(
+            route = "meal_category_details/{meal_category_id}",
+            arguments = listOf(
+                navArgument("meal_category_id") {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            val mealCategoryDetailsViewModel: MealCategoryDetailsViewModel = viewModel()
+            mealCategoryDetailsViewModel.mealCategoryState.value?.let { mealCategory ->
+                MealCategoryDetailsScreen(
+                    // mealCategoryId = it.arguments?.getString("meal_category_id"),
+                    mealCategory = mealCategory
+                    // navController = navController
+                )
             }
         }
     }
