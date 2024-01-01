@@ -2,6 +2,7 @@ package com.mojolabs.mealsappcompose.ui.meals.details
 
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -9,9 +10,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -60,9 +62,19 @@ fun MealCategoryDetailsScreen(mealCategory: MealCategory?) {
             label = ""
         )
 
-    val scrollState = rememberScrollState()
+    val scrollState = rememberLazyListState()
 
-    val offset = min(1f, 1 - (scrollState.value / 600f))
+    val offset =
+        min(
+            1f,
+            1 - (scrollState.firstVisibleItemScrollOffset / 600f + scrollState.firstVisibleItemIndex)
+        )
+
+    val imageSizeState =
+        animateDpAsState(
+            targetValue = max(100.dp, 200.dp * offset),
+            label = ""
+        )
 
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -85,7 +97,7 @@ fun MealCategoryDetailsScreen(mealCategory: MealCategory?) {
                             painter = rememberAsyncImagePainter(model = mealCategory?.imageUrl),
                             contentDescription = "Meal image",
                             // modifier = Modifier.size(imageSizeDpState.value)
-                            modifier = Modifier.size(max(100.dp, 200.dp * offset))
+                            modifier = Modifier.size(imageSizeState.value)
                         )
                     }
                     Text(
@@ -99,22 +111,22 @@ fun MealCategoryDetailsScreen(mealCategory: MealCategory?) {
                     )
                 }
             }
-            Column(
-                modifier = Modifier
-                    .verticalScroll(scrollState)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = mealCategory?.description?.repeat(10) ?: "N/A",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                val descriptionList = MutableList(10) { mealCategory?.description ?: "N/A" }
+
+                LazyColumn(state = scrollState) {
+                    items(items = descriptionList) {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
                 Button(
-                    onClick = {
-                        enumMealImageState.value = enumMealImageState.value.reverse()
-                    },
+                    onClick = { enumMealImageState.value = enumMealImageState.value.reverse() },
                     modifier = Modifier
                         .padding(16.dp)
                         .fillMaxWidth()
@@ -145,12 +157,12 @@ enum class EnumMealImageState(
     NORMAL(
         color = Color.Gray,
         size = 120.dp,
-        borderWidth = 8.dp
+        borderWidth = 4.dp
     ),
     EXPANDED(
         color = Color.DarkGray,
         size = 200.dp,
-        borderWidth = 12.dp
+        borderWidth = 8.dp
     );
 
     fun reverse() = if (this == NORMAL) EXPANDED else NORMAL
